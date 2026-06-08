@@ -1,4 +1,4 @@
-import streamlit as str
+import streamlit as st
 import requests
 from PIL import Image
 import io
