@@ -1,0 +1,40 @@
+name: Compile Standalone Executables
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers the pipeline automatically when you push a version tag (e.g., v1.0.0)
+
+jobs:
+  build:
+    name: Build Executable for Windows
+    runs-on: windows-latest # Tells GitHub to use a Windows virtual machine
+
+    steps:
+    - name: Check out Repository Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python Environment
+      uses: actions/setup-python@v5
+      with:
+        python-level: '3.11'
+        cache: 'pip'
+
+    - name: Install Project Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: Compile Application with PyInstaller
+      run: |
+        # --onefile packages everything into a single executable
+        # --noconsole hides the raw command prompt window for Streamlit/GUI apps
+        pyinstaller --onefile --noconsole app.py
+
+    - name: Upload Artifact to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/app.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Natively provided by GitHub
