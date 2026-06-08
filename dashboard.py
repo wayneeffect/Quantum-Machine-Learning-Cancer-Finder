@@ -12,6 +12,17 @@ st.set_page_config(
     layout="centered"
 )
 
+# DYNAMIC INFRASTRUCTURE ROUTING (Automates Online & Offline Execution)
+# Evaluates the host headers to seamlessly switch API routing contexts
+current_url = st.context.headers.get("Host", "")
+
+if "render.com" in current_url:
+    # Production Cloud Route: Used when running live on the web
+    API_URL = "https://quantum-machine-learning-cancer-finder.onrender.com/predict"
+else:
+    # Desktop Executable Route: Used when running locally as a standalone application package
+    API_URL = "http://127.0.0.1:8000/predict"
+
 # Crucial Regulatory Disclaimer Banner for Medical Networks
 st.warning("""
 ⚠️ **RESEARCH USE ONLY — NOT FOR ACTIVE CLINICAL DIAGNOSIS** This software is an open-source proof of concept utilizing a hybrid quantum-classical Variational Quantum Algorithm (VQA) simulation. It has not been evaluated by the FDA or any regulatory body and must not be used as a primary diagnostic instrument in clinical treatment environments.
@@ -19,9 +30,6 @@ st.warning("""
 
 st.title("🧬 Hybrid Quantum-Classical VQA Analytics")
 st.write("Upload a clinical skin scan or cell matrix image to calculate the 4-dimensional quantum feature state vector via remote simulation.")
-
-# Target the live Render Backend Web Service endpoint link
-API_URL = "https://quantum-machine-learning-cancer-finder.onrender.com/predict"
 
 # ---------------------------------------------------------
 # 2. IMAGE CAPTURE INTERFACE
@@ -36,7 +44,7 @@ if uploaded_file is not None:
     st.markdown("---")
     
     # ---------------------------------------------------------
-    # 3. INTERFERENCE PIPELINE STREAMING EXECUTION
+    # 3. INFERENCE PIPELINE STREAMING EXECUTION
     # ---------------------------------------------------------
     if st.button("Execute Quantum VQA Inference", type="primary"):
         with st.spinner("Streaming matrix arrays to remote QPU simulator..."):
@@ -49,7 +57,7 @@ if uploaded_file is not None:
                 # Construct the multipart/form-data payload contract matching backend specifications
                 files = {"file": (uploaded_file.name, img_byte_arr, uploaded_file.type)}
                 
-                # Stream request over public internet HTTP protocols
+                # Stream request over evaluated network protocol path (Cloud vs Localhost)
                 response = requests.post(API_URL, files=files)
                 
                 if response.status_code == 200:
